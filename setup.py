@@ -122,7 +122,17 @@ setup(
     packages=['xtcocotools'],
     package_dir = {'xtcocotools': 'xtcocotools'},
     install_requires=parse_requirements('requirements.txt'),
-    setup_requires=['setuptools>=18.0', 'cython>=0.27.3', 'numpy>=1.19.5'],
+    setup_requires=[
+        'setuptools>=18.0',
+        'cython>=0.27.3',
+        'numpy>=1.15.0; python_version=="3.6"',
+        'numpy>=1.16.0; python_version=="3.7"',
+        'numpy>=1.19.0; python_version=="3.8"',
+        'numpy>=1.21.0; python_version=="3.9"',
+        'numpy>=1.23.0; python_version=="3.10"',
+        'numpy>=1.25.0; python_version=="3.11"',
+        'numpy>=2.0.0; python_version>="3.12"'
+    ],
     version=get_version(),
     description="Extended COCO API",
     url="https://github.com/jin-s13/xtcocoapi",
