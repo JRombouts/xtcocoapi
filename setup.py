@@ -1,5 +1,12 @@
 from setuptools import setup, Extension
-import numpy as np
+
+def get_numpy_include():
+    """Defer numpy import until build time"""
+    try:
+        import numpy as np
+        return np.get_include()
+    except ImportError:
+        return None
 
 version_file = 'xtcocotools/version.py'
 
@@ -94,23 +101,44 @@ def parse_requirements(fname='requirements.txt', with_version=True):
 # To install library to Python site-packages run "python setup.py build_ext install"
 # Note that the original compile flags below are GCC flags unsupported by the Visual C++ 2015 build tools.
 # They can safely be removed.
-ext_modules = [
-    Extension(
-        'xtcocotools._mask',
-        sources=['./common/maskApi.c', 'xtcocotools/_mask.pyx'],
-        include_dirs = [np.get_include(), './common'],
-        extra_compile_args=[] # originally was ['-Wno-cpp', '-Wno-unused-function', '-std=c99'],
-    )
-]
+def get_ext_modules():
+    """Build extension modules with proper numpy include handling"""
+    numpy_include = get_numpy_include()
+    include_dirs = ['./common']
+    if numpy_include:
+        include_dirs.append(numpy_include)
+    
+    return [
+        Extension(
+            'xtcocotools._mask',
+            sources=['./common/maskApi.c', 'xtcocotools/_mask.pyx'],
+            include_dirs=include_dirs,
+            extra_compile_args=[] # originally was ['-Wno-cpp', '-Wno-unused-function', '-std=c99'],
+        )
+    ]
 
 setup(
     name='xtcocotools',
     packages=['xtcocotools'],
     package_dir = {'xtcocotools': 'xtcocotools'},
     install_requires=parse_requirements('requirements.txt'),
-    setup_requires=parse_requirements('requirements.txt'),
+    setup_requires=['setuptools>=18.0', 'cython>=0.27.3', 'numpy>=1.19.5'],
     version=get_version(),
     description="Extended COCO API",
     url="https://github.com/jin-s13/xtcocoapi",
-    ext_modules= ext_modules
+    ext_modules=get_ext_modules(),
+    python_requires='>=3.6',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+    ],
 )
